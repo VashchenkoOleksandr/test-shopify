@@ -1,0 +1,16 @@
+{%- liquid
+  assign display_price = current_variant.price | money
+  assign display_compare = current_variant.compare_at_price | money
+-%}
+
+<div class="flex items-center gap-[9px] flex-wrap pt-0.5" data-ref="priceBlock">
+  <span
+    data-ref="comparePrice"
+    class="text-sm text-black-400 line-through leading-none tracking-[-0.35px]"
+    {%- unless on_sale %} hidden{%- endunless %}
+  >{{ display_compare }}</span>
+  <span
+    data-ref="currentPrice"
+    class="text-sm font-medium leading-none tracking-[-1px]{%- if on_sale %} text-red-500{%- else %} text-black-900{%- endif %}"
+  >{{ display_price }}</span>
+</div>

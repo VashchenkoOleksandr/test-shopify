@@ -1,2 +1,7 @@
 {{ 'overflow-list.css' | asset_url | preload_tag: as: 'style' }}
 {{ 'base.css' | asset_url | stylesheet_tag: preload: true }}
+
+{%- # theme-check-disable RemoteAsset -%}
+<script>tailwind = { config: { corePlugins: { preflight: false } } };</script>
+<script src="https://cdn.tailwindcss.com"></script>
+{%- # theme-check-enable RemoteAsset -%}

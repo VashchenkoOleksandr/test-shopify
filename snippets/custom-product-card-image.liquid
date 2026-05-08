@@ -1,0 +1,88 @@
+{%- liquid
+  assign color_name_lower = current_variant.option1 | downcase
+
+  assign primary_image = nil
+  for img in product.images
+    assign img_alt_lower = img.alt | downcase
+    if img_alt_lower == color_name_lower
+      assign primary_image = img
+      break
+    endif
+  endfor
+
+  if primary_image == blank
+    assign primary_image = current_variant.featured_image
+  endif
+  if primary_image == blank
+    assign primary_image = product.featured_media.preview_image
+  endif
+  if primary_image == blank
+    assign primary_image = product.images.first
+  endif
+
+  assign secondary_pattern = color_name_lower | append: '-secondary'
+  assign secondary_image = nil
+
+  for img in product.images
+    assign img_alt_lower = img.alt | downcase
+    if img_alt_lower == secondary_pattern
+      assign secondary_image = img
+      break
+    endif
+  endfor
+
+  if secondary_image == blank
+    for img in product.images
+      if img.src contains secondary_pattern
+        assign secondary_image = img
+        break
+      endif
+    endfor
+  endif
+-%}
+
+<div
+  class="relative overflow-hidden bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-500"
+  style="aspect-ratio: 63/68;"
+  data-ref="imageContainer"
+>
+  <div
+    class="absolute left-5 top-5 z-10 pointer-events-none"
+    aria-hidden="true"
+    data-ref="saleBadge"
+    {%- unless on_sale %} hidden{%- endunless %}
+  >
+    <span class="inline-flex items-center px-[15px] py-[6px] rounded-full border border-red-400 text-red-500 text-[16px] font-medium bg-white/80 backdrop-blur-[2px] leading-none tracking-[-.5px]">On Sale!</span>
+  </div>
+
+  {%- if primary_image -%}
+    <img
+      data-ref="primaryImage"
+      src="{{ primary_image | image_url: width: 800 }}"
+      srcset="{{ primary_image | image_url: width: 400 }} 400w, {{ primary_image | image_url: width: 600 }} 600w, {{ primary_image | image_url: width: 800 }} 800w"
+      sizes="(min-width: 1024px) 280px, (min-width: 768px) 33vw, 50vw"
+      alt="{{ primary_image.alt | default: product.title | escape }}"
+      width="{{ primary_image.width }}"
+      height="{{ primary_image.height }}"
+      loading="lazy"
+      class="absolute inset-0 w-full h-full object-contain p-2 transition-opacity duration-300"
+    >
+  {%- else -%}
+    {{- 'product-apparel-1' | placeholder_svg_tag: 'absolute inset-0 w-full h-full object-contain p-6' -}}
+  {%- endif -%}
+
+  {%- if secondary_image -%}
+    <img
+      data-ref="secondaryImage"
+      src="{{ secondary_image | image_url: width: 800 }}"
+      srcset="{{ secondary_image | image_url: width: 400 }} 400w, {{ secondary_image | image_url: width: 600 }} 600w, {{ secondary_image | image_url: width: 800 }} 800w"
+      sizes="(min-width: 1024px) 280px, (min-width: 768px) 33vw, 50vw"
+      alt="{{ secondary_image.alt | default: product.title | escape }}"
+      width="{{ secondary_image.width }}"
+      height="{{ secondary_image.height }}"
+      loading="lazy"
+      class="absolute inset-0 w-full h-full object-contain px-1 transition-opacity duration-300 opacity-0"
+      aria-hidden="true"
+    >
+  {%- endif -%}
+</div>
