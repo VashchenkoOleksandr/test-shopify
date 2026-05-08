@@ -1,0 +1,81 @@
+{%- liquid
+  assign color_option = nil
+  assign color_position = 0
+  for opt in product.options_with_values
+    assign opt_name_lower = opt.name | downcase
+    if opt_name_lower == 'color' or opt_name_lower == 'colour'
+      assign color_option = opt
+      assign color_position = opt.position
+      break
+    endif
+  endfor
+  assign swatch_option_key = 'option' | append: color_position
+-%}
+
+{%- if color_option -%}
+  <div
+    class="flex flex-wrap gap-[6px] pt-[2px]"
+    role="group"
+    aria-label="{{- color_option.name | escape -}}"
+    data-ref="swatchGroup"
+  >
+    {%- for option_value in color_option.values -%}
+      {%- liquid
+        assign matched_variant = nil
+        for variant in product.variants
+          if variant[swatch_option_key] == option_value.name
+            assign matched_variant = variant
+            break
+          endif
+        endfor
+
+        assign swatch = option_value.swatch
+        assign swatch_bg = '#cccccc'
+        assign swatch_img_url = ''
+
+        assign option_name_lower = option_value.name | downcase
+        for meta_color in product.metafields.shopify["color-pattern"].value
+          assign meta_label_lower = meta_color.label | downcase
+          if meta_label_lower == option_name_lower
+            assign swatch_bg = meta_color.color
+            break
+          endif
+        endfor
+
+        if swatch_bg == '#cccccc'
+          if swatch.color
+            assign swatch_bg = 'rgb(' | append: swatch.color.rgb | append: ')'
+          endif
+        endif
+
+        if swatch.image
+          assign swatch_img_url = swatch.image | image_url: width: 48
+        endif
+
+        assign is_available = option_value.available
+      -%}
+      <label
+        class="relative cursor-pointer select-none"
+        title="{{ option_value.name | escape }}"
+      >
+        <input
+          type="radio"
+          name="color-{{ product.id }}"
+          value="{{ option_value.name | escape }}"
+          class="sr-only peer"
+          {%- if forloop.first %} checked{%- endif %}
+          {%- unless is_available %} disabled{%- endunless %}
+          data-swatch-value="{{ option_value.name | escape }}"
+          data-variant-id="{{ matched_variant.id }}"
+          data-media-id="{{ matched_variant.featured_image.id }}"
+          aria-label="{{ option_value.name | escape }}"
+        >
+        <span
+          class="block w-[22px] h-[22px] rounded-full border border-white peer-checked:ring-1 peer-checked:ring-gray-800 peer-focus-visible:ring-1 peer-focus-visible:ring-indigo-500 transition-shadow duration-150{%- unless is_available %} opacity-40 cursor-not-allowed{%- endunless %}"
+          style="background-color: {{ swatch_bg }};{%- if swatch_img_url != '' %} background-image: url('{{ swatch_img_url }}'); background-size: cover;{%- endif %}"
+          aria-hidden="true"
+        ></span>
+      </label>
+    {%- endfor -%}
+  </div>
+{%- endif -%}

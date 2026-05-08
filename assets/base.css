@@ -976,10 +976,6 @@ body:has(.header[transparent]) #header-group > *:not(.header-section) {
   }
 }
 
-.product-grid :is(h3, p) {
-  margin: 0;
-}
-
 .product-grid__item {
   border: var(--product-card-border-width) solid rgb(var(--color-border-rgb) / var(--product-card-border-opacity));
 }

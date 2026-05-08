@@ -1,0 +1,72 @@
+{%- liquid
+  assign demo_collection = collections[section.settings.collection]
+  assign products_to_show = demo_collection.products
+  if demo_collection == blank
+    assign products_to_show = collections.all.products
+  endif
+  assign products_limit = section.settings.products_per_row | times: 2
+-%}
+
+<div
+  class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12"
+  id="{{ section.id }}"
+>
+  {%- if section.settings.title != blank -%}
+    <h2 class="text-2xl font-bold text-gray-900 mb-8">
+      {{ section.settings.title | escape }}
+    </h2>
+  {%- endif -%}
+
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+    {%- for product in products_to_show limit: products_limit -%}
+      <div class="relative">
+        {%- render 'custom-product-card', product: product -%}
+      </div>
+    {%- else -%}
+      <p class="col-span-full text-center text-gray-400 py-16">
+        No products found. Select a collection in the section settings.
+      </p>
+    {%- endfor -%}
+  </div>
+</div>
+
+<script
+  src="{{ 'custom-product-card.js' | asset_url }}"
+  type="module"
+></script>
+
+{% schema %}
+{
+  "name": "Custom Product Card Demo",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "Featured Products"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection",
+      "info": "Leave blank to use all products"
+    },
+    {
+      "type": "range",
+      "id": "products_per_row",
+      "label": "Products per row (desktop)",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 4
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom Product Card Demo",
+      "category": "Custom Components"
+    }
+  ]
+}
+{% endschema %}
